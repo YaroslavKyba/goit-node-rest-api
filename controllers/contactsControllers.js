@@ -1,16 +1,50 @@
 import contactsServices from "../services/contactsServices.js";
+import HttpError from "../helpers/HttpError.js";
+import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
-export const getAllContacts = async (req, res) => {
+const getAllContacts = async (req, res) => {
   const result = await contactsServices.listContacts();
   res.json(result);
 };
 
-// listContacts, getContactById, removeContact, addContact;
+const getOneContact = async (req, res) => {
+  const { id } = req.params;
+  const result = await contactsServices.getContactById(id);
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+  res.json(result);
+};
 
-export const getOneContact = (req, res) => {};
+const deleteContact = async (req, res) => {
+  const { id } = req.params;
+  const result = await contactsServices.removeContact(id);
 
-export const deleteContact = (req, res) => {};
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+  res.status(200).json(result);
+};
 
-export const createContact = (req, res) => {};
+const createContact = async (req, res) => {
+  const result = await contactsServices.addContact(req.body);
+  res.status(201).json(result);
+};
 
-export const updateContact = (req, res) => {};
+const updateContact = async (req, res) => {
+  const { id } = req.params;
+  const result = await contactsServices.updateContactById(id, req.body);
+
+  if (!result) {
+    throw HttpError(404, "Not found");
+  }
+  res.json(result);
+};
+
+export default {
+  getAllContacts: ctrlWrapper(getAllContacts),
+  getOneContact: ctrlWrapper(getOneContact),
+  deleteContact: ctrlWrapper(deleteContact),
+  createContact: ctrlWrapper(createContact),
+  updateContact: ctrlWrapper(updateContact),
+};
