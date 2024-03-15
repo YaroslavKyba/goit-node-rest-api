@@ -1,70 +1,22 @@
-import fs from "fs/promises";
-import path from "path";
+import Contact from "../models/Contacts.js";
 
-import { nanoid } from "nanoid";
+const listContacts = () => Contact.find({});
 
-const contactsPath = path.resolve("db", "contacts.json");
+const getContactById = (id) => Contact.findById(id);
 
-const updateContacts = (contacts) =>
-  fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+const removeContact = (id) => Contact.findByIdAndDelete(id);
 
-async function listContacts() {
-  const data = await fs.readFile(contactsPath);
-  return JSON.parse(data);
-  // ...твій код. Повертає масив контактів.
-}
+const addContact = (data) => Contact.create(data);
 
-async function getContactById(contactId) {
-  const contacts = await listContacts();
-  const result = contacts.find((contact) => contact.id === contactId);
+const updateContactById = (id, data) => Contact.findByIdAndUpdate(id, data);
 
-  return result || null;
-  // ...твій код. Повертає об'єкт контакту з таким id. Повертає null, якщо контакт з таким id не знайдений.
-}
-
-async function removeContact(contactId) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex((contact) => contact.id === contactId);
-
-  if (index === -1) {
-    return null;
-  }
-
-  const [result] = contacts.splice(index, 1);
-  await updateContacts(contacts);
-  return result;
-
-  // ...твій код. Повертає об'єкт видаленого контакту. Повертає null, якщо контакт з таким id не знайдений.
-}
-
-async function addContact(data) {
-  const contacts = await listContacts();
-  const newContact = { id: nanoid(), ...data };
-
-  contacts.push(newContact);
-  await updateContacts(contacts);
-
-  return newContact;
-  // ...твій код. Повертає об'єкт доданого контакту (з id)
-}
-
-async function updateContactById(id, data) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex((contact) => contact.id === id);
-
-  if (index === -1) {
-    return null;
-  }
-  contacts[index] = { ...contacts[index], ...data };
-  await updateContacts(contacts);
-
-  return contacts[index];
-}
+const updateContactFavoriteById = (id, data) =>
+  Contact.findByIdAndUpdate(id, data);
 
 export default {
   listContacts,
   getContactById,
   removeContact,
   addContact,
-  updateContactById,
+  updateContactFavoriteById,
 };
